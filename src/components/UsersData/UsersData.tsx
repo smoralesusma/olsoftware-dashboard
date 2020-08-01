@@ -166,8 +166,8 @@ const UsersData = () => {
               if (users) {
                 setUsers([...users, newUserData]);
                 setFilteredUsers(undefined);
-                setSnackbar({ type:"success", message: "El usuario ha sido creado" });
               } else setUsers([newUserData]);
+              setSnackbar({ type:"success", message: "El usuario ha sido creado" });
             }}/>}
         </Box>
         <UsersTable
