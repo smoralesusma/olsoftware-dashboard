@@ -1,5 +1,27 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Front-End test for OLSoftware
+
+
+## Description
+
+In this project you will find the fronend test performed for OLSoftware.
+The test consists of layout and functionality of two main components.
+
+### Home - Login Page
+
+In this component the user will be able to log in to the platform using email and password, verifying with google or registering if they have the PIN.
+All the users passwords are hashed using SHA256 with a random SLAT variable (REACT_APP_PIN_SALT).
+
+### Dashboard - Users table Page
+
+In this component the user will be able to view the table with the information of all the users. 
+He will be able to filter in the same table or also in a filter panel to the right of the screen.
+If the user is an administrator ("administrador"), he can create, modify, delete users or export the table in PDF/CSV format.
+
+If a user is going to be created, modified or deleted from this screen; Cloud functions will be used to avoid compromising data.
+You can see the cloud funcions in this repository: [Cloud Funciotns](https://github.com/smoralesusma/firebase-functions.git)
+
 ## Available Scripts
 
 In the project directory, you can run:
