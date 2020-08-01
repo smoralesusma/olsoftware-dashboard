@@ -154,14 +154,14 @@ const UsersData = () => {
               component="p">Usuarios existentes
             </Typography>
           </Box>
-          <CreateUserButton
+          {canEdit && <CreateUserButton
             setUser={(newUserData) => {
               const newUsers = users;
               if (newUsers) {
                 newUsers.push(newUserData);
                 setUsers([...newUsers])
               } else setUsers([newUserData]);
-            }}/>
+            }}/>}
         </Box>
         <UsersTable
           users={users}

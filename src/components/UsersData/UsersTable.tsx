@@ -70,7 +70,7 @@ const UsersTable = ({ users, filteredUsers, canEdit, setUsers }: IUsersTable) =>
       options={{
         filtering: true,
         actionsColumnIndex: 7,
-        exportButton: true,
+        exportButton: canEdit,
         exportFileName: "tabla_de_usuarios"
       }}
       icons={MaterialTableIcons}
