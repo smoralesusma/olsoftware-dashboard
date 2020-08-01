@@ -10,10 +10,12 @@ import {
   OutlinedInput,
   Select,
   MenuItem,
-  Button,
+  Button, 
+  Snackbar,
   makeStyles,
   useTheme } from "@material-ui/core";
 import { Group, GroupAdd } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 
 import UsersTable from "../UsersData/UsersTable";
 import CreateUserButton from "./CreateUserButton";
@@ -57,10 +59,53 @@ const UsersData = () => {
   const [users, setUsers] = useState<IUserData[] | undefined>(undefined);
   const [filteredUsers, setFilteredUsers] = useState<IUserData[] | undefined>(undefined);
   const [canEdit, setCanEdit] = useState<boolean>(false);
-  const { currentUser } = useContext(AuthContext);
+  const [snackbar, setSnackbar] = useState<{
+    type: "success" | "info" | "warning" | "error",
+    message: string, time?: number } | null>(null);
 
+  const { currentUser } = useContext(AuthContext);
+    
   const theme = useTheme();
   const classes = useStyles(theme);
+
+  useEffect(() => {
+    if (currentUser) {
+      const usersDB = firebase.firestore(firebaseInitApp).collection("USER");
+      usersDB.get().then(async (users) => {
+        const usersData: IUserData[] = [];
+        let isNewUser = true;
+        users.docs.forEach(user => {
+          const userData = user.data();
+          if (userData.email === currentUser.email) {
+            setCanEdit(userData.rol === "administrador");
+            isNewUser = false;
+          }
+          const userInfo: IUserData = {
+            id: user.id,
+            ...userData as any,
+          }
+          usersData.push(userInfo);
+        });
+        if (isNewUser) {
+          const newUserData: IUserData = {
+            names: "N/A",
+            lastnames: "N/A",
+            identification: 0,
+            rol: "conductor",
+            state: false,
+            phone: 1234567,
+            email: currentUser.email!
+          }
+          const newUser = await usersDB.add(newUserData);
+
+          newUserData.id = newUser.id;
+
+          usersData.push(newUserData);
+          setUsers([...usersData]);
+        } else setUsers([...usersData]);
+      })
+    }
+  }, [currentUser]);
 
   const onFilterUsers  = (event: any) => {
     event.preventDefault();
@@ -99,44 +144,6 @@ const UsersData = () => {
     }
   }
 
-  useEffect(() => {
-    if (currentUser) {
-      const usersDB = firebase.firestore(firebaseInitApp).collection("USER");
-      usersDB.get().then(async (users) => {
-        const usersData: IUserData[] = [];
-        let isNewUser = true;
-        users.docs.forEach(user => {
-          const userData = user.data();
-          if (userData.email === currentUser.email) {
-            setCanEdit(userData.rol === "administrador");
-            isNewUser = false;
-          }
-          const userInfo: IUserData = {
-            id: user.id,
-            ...userData as any,
-          }
-          usersData.push(userInfo);
-        });
-        if (isNewUser) {
-          const newUserData: IUserData = {
-            names: "N/A",
-            lastnames: "N/A",
-            identification: 0,
-            rol: "conductor",
-            state: false,
-            phone: 1234567,
-            email: currentUser.email!
-          }
-          const newUser = await usersDB.add(newUserData);
-
-          newUserData.id = newUser.id;
-
-          usersData.push(newUserData);
-          setUsers([...usersData]);          
-        } else setUsers([...usersData]);
-      })
-    }
-  }, [currentUser]);
   return <Grid container spacing={2}>
     <Grid item xs={12} lg={9}>
       <Paper className={classes.paper}>
@@ -156,10 +163,10 @@ const UsersData = () => {
           </Box>
           {canEdit && <CreateUserButton
             setUser={(newUserData) => {
-              const newUsers = users;
-              if (newUsers) {
-                newUsers.push(newUserData);
-                setUsers([...newUsers])
+              if (users) {
+                setUsers([...users, newUserData]);
+                setFilteredUsers(undefined);
+                setSnackbar({ type:"success", message: "El usuario ha sido creado" });
               } else setUsers([newUserData]);
             }}/>}
         </Box>
@@ -293,6 +300,14 @@ const UsersData = () => {
         </form>
       </Paper>
     </Grid>
+    <Snackbar
+      open={snackbar !== null}
+      autoHideDuration={snackbar?.time ?? 6000}
+      onClose={() => setSnackbar(null)}>
+      <Alert onClose={() => setSnackbar(null)} severity={snackbar?.type}>
+        {snackbar?.message}
+      </Alert>
+    </Snackbar>
   </Grid>
 }
 

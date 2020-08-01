@@ -95,7 +95,7 @@ const CreateUserButton = ({ setUser }: ICreateUserButton) => {
         usersDB.add(newUserData).then((user) => {
           newUserData.id = user.id;
           setUser(newUserData);
-          onCloseRegisterDialog()
+          onCloseRegisterDialog();
         }).catch((error: Error) => setSnackbar({ type:"error", message: error.message }));
       }).catch((error: Error) => setSnackbar({ type:"error", message: error.message }));
     } else setSnackbar({ type:"error", message: "No es un correo válido" });
